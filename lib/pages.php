@@ -4,17 +4,19 @@
         
         public $params;// Each word between the slashes in the url is stored in a variable
 
-        public $page;// The current page
+        public $page = "404";// The current page
 
-        public $err;// If err then return a 404
+        public $err = FALSE;// If err then return a 404
 
         public $display; // How many articles to display per page
 
         public $config;
 
         public function __construct(){
-            $this->config = require "config/config.php";
+            $this->config = require "lib/config.php";
+            $this->findParams();
             $this->checkPage();
+            $this->displayPage();
         }
 
         public function findParams(){ 
@@ -26,22 +28,17 @@
         }
 
         public function checkPage($config){
-            $this->findParams();
-            $this->page = "404";
-            $this->err = FALSE;
-
             foreach ($this->config['routes'] as $key => $value){
                 if (preg_match($value['route'], "/" . implode("/", $this->params))){
                     $this->page = $key;
                 }
             }
-
-            $this->displayPage();
         }
 
         public function displayPage(){
             include_once("lib/articles.php");
-            $articles = new articles($this->params, $this->config['articles.display'], $this->config['articles.path']);
+            $articles = new articles($this->params, $this->page, 
+                $this->config['articles.display'], $this->config['articles.path']);
 
             switch ($this->page){
                 case '__root__':
@@ -49,15 +46,18 @@
                     break;
                 case 'post':
                     include("lib/post.php");
+                    $this->err = TRUE;
+                    break;
+                case 'article':
+                    $articles->path = $articles->path . $this->params[0] . "/";
+                    $this->err = $articles->displayAll();
                     break;
                 default:
                     $this->page = "404";
             }
             if (!$this->err)
                 echo "404";
-            return $this->page;
         }
-
     }
 
 ?>

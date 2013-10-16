@@ -18,11 +18,11 @@
                 'template' => 'index'
             ),
             'article' => array(
-                'route' => '/articles',
+                'route' => '/^(\/((projects)|(hobbies)|(work)|(school)|(portfolio)))/',
                 'template' => 'index'
             ),
             'post' => array(
-                'route' => '/post',
+                'route' => '/^(\/post)$/',
                 'template' => 'index'
             ),
             'rss' => array(

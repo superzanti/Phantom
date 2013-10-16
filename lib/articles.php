@@ -10,11 +10,13 @@
 
         public $path;
 
-        public function __construct($params, $display, $path){
+        public $page;
+
+        public function __construct($params, $page, $display, $path){
             $this->params = $params;
             $this->display = $display;
             $this->path = $path;
-            $this->getAll();
+            $this->page = $page;
         }
 
         public function getAll(){
@@ -40,21 +42,26 @@
         }
 
         public function displayAll(){
-            $this->display = 2;
-            if(!$this->params[0]){
+            $this->getAll();
+            if ($this->page != '__root__')
                 $this->params[0] = 0;
+            if($this->params[0] == 0){
                 $this->display = $this->display + 1;
             }
             $this->display = $this->display - 1;
-            if ($this->params[0] >= sizeof($this->articles) - $this->display)
-                return FALSE;
-            foreach(array_slice($this->articles, $this->params[0], $this->params[0] + $this->display) as $article){
+            if(!(sizeof($this->articles) <= $this->display))
+                if ($this->params[0] >= sizeof($this->articles) - $this->display)
+                    return FALSE;
+            foreach(array_slice($this->articles, 
+                $this->params[0], $this->params[0] + $this->display) as $article){
                 echo "<h1> ". $article['meta']['title'] ." </h1><br> ";
                 echo substr(strip_tags($article['content']), 0,200)
                     . '... <a href="/' . $article['meta']['slug']
                     . '">Read more >> </a><br><br>';
             }
-            $err = $this->navArticles();
+            $err = TRUE;
+            if(sizeof($this->articles) > $this->display)
+                $err = $this->navArticles();
             return $err;
         }
 
